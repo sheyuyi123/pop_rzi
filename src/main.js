@@ -4,7 +4,7 @@ import 'normalize.css/normalize.css' // A modern alternative to CSS resets
 
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import locale from 'element-ui/lib/locale/lang/en' // lang i18n
+// import locale from 'element-ui/lib/locale/lang/en' // lang i18n
 
 import '@/styles/index.scss' // global css
 
@@ -14,6 +14,24 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
+
+import Components from '@/components/index'
+
+Vue.use(Components)
+// 一次性注册使用指令
+import * as directives from '@/directives/index'
+
+// console.log(directives)
+
+for (const key in directives) {
+  Vue.directive(key, directives[key])
+}
+
+import * as filters from '@/filters/index'
+
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
 
 /**
  * If you don't want to use mock-server
@@ -25,9 +43,9 @@ import '@/permission' // permission control
  */
 
 // set ElementUI lang to EN
-Vue.use(ElementUI, { locale })
+// Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-// Vue.use(ElementUI)
+Vue.use(ElementUI)
 
 Vue.config.productionTip = false
 

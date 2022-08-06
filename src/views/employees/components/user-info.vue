@@ -1,5 +1,12 @@
 <template>
   <div class="user-info">
+    <el-row type="flex" justify="end">
+      <el-tooltip class="item" effect="dark" content="打印个人信息" placement="bottom-end">
+        <router-link :to="`/employees/print/${userId}?type=personal`">
+          <i class="el-icon-printer" />
+        </router-link>
+      </el-tooltip>
+    </el-row>
     <!-- 个人信息 -->
     <el-form label-width="220px">
       <!-- 工号 入职时间 -->
@@ -58,7 +65,7 @@
         <el-col :span="12">
           <el-form-item label="员工头像">
             <!-- 放置上传图片 -->
-            <ImageUpload />
+            <ImageUpload ref="formRef" />
           </el-form-item>
         </el-col>
       </el-row>
@@ -89,6 +96,7 @@
         <!-- 员工照片 -->
 
         <el-form-item label="员工照片">
+          <ImageUpload ref="boroadRef" />
           <!-- 放置上传图片 -->
         </el-form-item>
         <el-form-item label="国家/地区">
@@ -369,21 +377,43 @@ export default {
   methods: {
     // 保存上部分的信息
     async saveUser() {
-      await saveUserDetailById({ ...this.userInfo, id: this.userId })
+      const fileList = this.$refs.formRef.fileList
+      console.log(fileList)
+      if (fileList.some(item => !item.upload)) {
+        this.$message.warning('上传图片未完成')
+        return
+      }
+      await saveUserDetailById({ ...this.userInfo, id: this.userId, staffPhoto: fileList?.[0]?.url })
       this.$message.success('更新成功')
     },
     // 保存下部分的信息
     async savePersonal() {
-      await updatePersonal(this.formData)
+      const fileList = this.$refs.boroadRef.fileList
+      console.log(fileList)
+      if (fileList.some(item => !item.upload)) {
+        this.$message.warning('上传图片未完成')
+        return
+      }
+      await updatePersonal({ ...this.formData, staffPhoto: fileList?.[0]?.url })
       this.$message.success('更新成功')
     },
     // 读取上部分的信息
     async getUserDetailById() {
       this.userInfo = await getUserDetailById(this.userId)
+      console.log(this.userInfo.staffPhoto)
+      console.log(this.$refs.formRef.fileList)
+      this.$refs.formRef.fileList = [{
+        url: this.formData.staffPhoto,
+        upload: true
+      }]
     },
     // 读取下部分的信息
     async getPersonalDetail() {
       this.formData = await getPersonalDetail(this.userId)
+      this.$refs.boroadRef.fileList = [{
+        url: this.formData.staffPhoto,
+        upload: true
+      }]
     }
   }
 }

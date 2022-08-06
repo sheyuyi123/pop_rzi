@@ -16,7 +16,9 @@ import '@/icons' // icon
 import '@/permission' // permission control
 
 import Components from '@/components/index'
-
+// 打印
+import Print from 'vue-print-nb'
+Vue.use(Print)
 Vue.use(Components)
 // 一次性注册使用指令
 import * as directives from '@/directives/index'

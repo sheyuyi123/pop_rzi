@@ -15,6 +15,15 @@
         <el-table border :data="list">
           <el-table-column type="index" label="序号" sortable="" />
           <el-table-column prop="username" label="姓名" sortable="" />
+          <el-table-column label="头像">
+            <template slot-scope="{ row }">
+              <el-avatar style="border-radius: 50%; width: 100px; height: 100px; padding: 10px" :src="row.staffPhoto" @click.native="showQrCode(row.staffPhoto)">
+                <img
+                  alt=""
+                >
+              </el-avatar>
+            </template>
+          </el-table-column>
           <el-table-column prop="workNumber" label="工号" sortable="" />
           <el-table-column :formatter="formatter" prop="formOfEmployment" label="聘用形式" sortable="" />
           <el-table-column prop="departmentName" label="部门" sortable="" />
@@ -29,7 +38,7 @@
               <el-button type="text" size="small">转正</el-button>
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
-              <el-button type="text" size="small">角色</el-button>
+              <el-button type="text" size="small" @click="Dialog(row.id)">角色</el-button>
               <el-button type="text" size="small" @click="submit(row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -41,6 +50,12 @@
       </el-card>
     </div>
     <AddEmployee v-if="isshowAddEmployee" :isshow-add-employee.sync="isshowAddEmployee" />
+    <el-dialog title="二维码" :visible.sync="showAvatar">
+      <el-row type="flex" justify="center">
+        <canvas ref="canvas" />
+      </el-row>
+    </el-dialog>
+    <AssignRole ref="roleRef" :show-dialog.sync="showDialog" :corrent-id="correntId" />
   </div>
 </template>
 
@@ -48,13 +63,18 @@
 import { formatDate } from '@/filters'
 import { getEmployeeList, delEmployee } from '@/api/employees'
 import ToolBar from '@/components/ToolBar/index.vue'
+import QrCode from 'qrcode'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from './components/add-employee.vue'
+import AssignRole from './components/assign-role.vue'
 export default {
-  components: { ToolBar, AddEmployee },
+  components: { ToolBar, AddEmployee, AssignRole },
   data() {
     return {
+      showDialog: false,
+      showAvatar: false,
       isshowAddEmployee: false,
+      correntId: '',
       list: [],
       page: {
         page: 1,
@@ -67,6 +87,25 @@ export default {
     this.getEmployeeList()
   },
   methods: {
+    // 当前角色
+    async Dialog(id) {
+      await this.$refs.roleRef.getUserDetailById(id)
+      // console.log(this.$refs.roleRef.getRoleDetail(id))
+      this.correntId = id
+      this.showDialog = true
+    },
+    showQrCode(url) {
+      console.log(url)
+      // 预览头像的弹层展示出来
+      this.showAvatar = true
+      // 数据更新之后不能立即渲染
+      // 如果要在数据更新后获取更新后的最新的dom元素
+      // 需要使用$nextTick
+      // qrCode.toCanvas(this.$refs.canvas, url)
+      this.$nextTick(() => {
+        QrCode.toCanvas(this.$refs.canvas, url)
+      })
+    },
     async exporToExcel() {
       const headers = {
         '姓名': 'username',

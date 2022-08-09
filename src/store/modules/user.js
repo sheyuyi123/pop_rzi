@@ -1,5 +1,6 @@
 import { getToken, removeToken, setTimeStamp, setToken } from '@/utils/auth'
 import { login, getUserInfo, getUserDetailById } from '@/api/user'
+import { resetRouter } from '@/router'
 // 状态
 const state = {
   token: getToken(),
@@ -42,13 +43,14 @@ const actions = {
   // 获取用户资料的action
 
   async getUserInfo(context) {
-    const result = await getUserInfo()
+    const res = await getUserInfo()
     // console.log(result)
-    const baseInfo = await getUserDetailById(result.userId)
+    const baseInfo = await getUserDetailById(res.userId)
     // console.log(baseInfo)
     // console.log(...result, ...baseInfo)
     // 存储到vuex
-    context.commit('setUserInfo', { ...result, ...baseInfo })
+    context.commit('setUserInfo', { ...res, ...baseInfo })
+    return { ...baseInfo, ...res }
   },
 
   // 登出的action
@@ -57,6 +59,15 @@ const actions = {
     context.commit('removeToken') // 不仅仅删除了vuex中的 还删除了缓存中的
     // 删除用户资料
     context.commit('removeUserInfo') // 删除用户信息
+
+    // 重置路由
+    resetRouter()
+    // 还有一步  vuex中的数据是不是还在
+    // 要清空permission模块下的state数据
+    // vuex中 user子模块  permission子模块
+    // 子模块调用子模块的action  默认情况下 子模块的context是子模块的
+    // 父模块 调用 子模块的action
+    context.commit('permission/setRoutes', [], { root: true })
   }
 }
 

@@ -15,14 +15,14 @@
         <el-table-column align="center" label="操作">
           <template slot-scope="{ row }">
             <el-button v-if="row.type === 1" type="text" @click="isshow(row.id,2)">添加</el-button>
-            <el-button type="text">编辑</el-button>
-            <el-button type="text">删除</el-button>
+            <el-button type="text" @click="editPermission(row.id)">编辑</el-button>
+            <el-button type="text" @click="delPermission(row.id)">删除</el-button>
           </template>
         </el-table-column>
 
       </el-table>
     </div>
-    <el-dialog :visible.sync="showDialog" title="新增权限" lang-width="140px" @close="close">
+    <el-dialog :visible.sync="showDialog" :title="`${title}权限`" lang-width="140px" @close="close">
       <el-form ref="pefForm" :rules="rules" :model="formData">
         <el-form-item label="权限名称" prop="name">
           <el-input v-model="formData.name" style="width:80%" />
@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { getPermissionList, addPermission } from '@/api/permisson'
+import { getPermissionList, addPermission, delPermission, getPermissionDetail, updatePermission } from '@/api/permisson'
 import { transListToTree } from '@/utils'
 export default {
   name: 'Permission',
@@ -81,10 +81,34 @@ export default {
 
     }
   },
+  computed: {
+    title() {
+      return this.formData.id ? '编辑' : '新增'
+    }
+  },
   created() {
     this.getPermissionList()
   },
   methods: {
+    async editPermission(id) {
+      // 更新
+      const res = await getPermissionDetail(id)
+      console.log(res)
+      // 赋值
+      this.formData = res
+      // 拉弹框
+      this.showDialog = true
+    },
+    async delPermission(id) {
+      // 提示框
+      await this.$confirm('是否确认删除？')
+      // 删除
+      await delPermission(id)
+      // 删除成功提示
+      this.$message.success('删除成功')
+      // 重新拉取数据
+      await this.getPermissionList()
+    },
     isshow(pid, type) {
       this.formData.pid = pid
       this.formData.type = type
@@ -100,11 +124,14 @@ export default {
       await this.$refs.pefForm.validate()
       try {
         if (this.formData.id) {
-          return
+          // 编辑有id
+          await updatePermission(this.formData)
         } else {
+          // 新增无id
           await addPermission(this.formData)
         }
-        this.$message.success('添加权限点成功')
+        // 新增权限点判断
+        this.$message.success(`${this.title}权限点成功`)
         this.close()
         await this.getPermissionList()
       } catch (e) {

@@ -2,11 +2,13 @@
   <div class="dashboard-container">
     <div class="dashboard-text">name: {{ name }}</div>
     <ImageUpload />
+    <!-- <button @click="hello">点击</button> -->
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+// import { mixins } from '@/utils/mixins'
 import ImageUpload from '@/components/ImageUpload'
 
 export default {
@@ -14,11 +16,14 @@ export default {
   components: {
     ImageUpload
   },
+  // mixins: [mixins],
   computed: {
     ...mapGetters([
       'name'
     ])
-
+  },
+  created() {
+    console.log('自己的')
   }
 }
 </script>

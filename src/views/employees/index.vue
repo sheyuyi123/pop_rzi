@@ -39,7 +39,7 @@
               <el-button type="text" size="small">调岗</el-button>
               <el-button type="text" size="small">离职</el-button>
               <el-button type="text" size="small" @click="Dialog(row.id)">角色</el-button>
-              <el-button type="text" size="small" @click="submit(row.id)">删除</el-button>
+              <el-button :disabled="checkPermission('DELETE_USER')" type="text" size="small" @click="submit(row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -67,8 +67,10 @@ import QrCode from 'qrcode'
 import EmployeeEnum from '@/api/constant/employees'
 import AddEmployee from './components/add-employee.vue'
 import AssignRole from './components/assign-role.vue'
+import { mixins } from '@/utils/mixins'
 export default {
   components: { ToolBar, AddEmployee, AssignRole },
+  mixins: [mixins],
   data() {
     return {
       showDialog: false,

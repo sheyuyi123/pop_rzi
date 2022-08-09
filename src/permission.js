@@ -19,7 +19,11 @@ router.beforeEach(async(to, from, next) => {
   if (token) {
     // 判断是否去登录页面
     if (!store.getters.userId) {
-      await store.dispatch('user/getUserInfo')
+      const res = await store.dispatch('user/getUserInfo')
+      console.log(res.roles.menus)
+      const routes = await store.dispatch('permission/filterRoutes', res.roles.menus)
+      router.addRoutes([...routes, { path: '*', redirect: '/404', hidden: true }])
+      next(to.path)
     }
     if (to.ptah === loginPath) {
       next('/') // 跳转到首页

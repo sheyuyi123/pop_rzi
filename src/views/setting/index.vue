@@ -28,7 +28,7 @@
               label="操作"
             >
               <template v-slot="{row}">
-                <el-button size="small" type="success">分配权限</el-button>
+                <el-button size="small" type="success" @click="assignperm(row.id)">分配权限</el-button>
                 <el-button size="small" type="primary" @click="edit(row.id)">编辑</el-button>
                 <el-button size="small" type="danger" @click="del(row.id)">删除</el-button>
               </template>
@@ -82,21 +82,48 @@
         <el-button type="primary" @click="btnok">确定</el-button>
       </template>
     </el-dialog>
+    <el-dialog title="分配权限" :visible="showPermission" @close="closePermission">
+      <el-tree
+        ref="RomeRef"
+        :props="props"
+        :data="PermissionList"
+        show-checkbox
+        default-expand-all
+        :check-strictly="true"
+        node-key="id"
+        :default-checked-keys="selectCheck"
+      />
+      <template #footer>
+        <el-button size="mini" @click="closePermission">取消</el-button>
+        <el-button size="mini" type="primary" @click="btnOkPermission">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script>
 // import { mapGetters } from 'vuex'
+import { getPermissionList, assignPerm } from '@/api/permisson'
 import { getRoleList, getCompanyInfo, deleteRole, getRoleDetail, updateRole, addRole } from '@/api/setting'
+import { transListToTree } from '@/utils'
 export default {
   data() {
     return {
+      props: {
+        label: 'name'
+      },
+      roleId: null,
+      PermissionList: [],
+      showPermission: false,
       showDialog: false,
       activeName: 'second',
       list: [],
+      checkedKeys: [],
+      selectCheck: [],
       page: {
         page: 1,
-        pagesize: 2
+        pagesize: 10
       },
+      currentRoleId: [],
       total: 0,
       formData: {},
       roleRules: {
@@ -115,6 +142,32 @@ export default {
     this.getCompanyInfo()
   },
   methods: {
+    async btnOkPermission() {
+      const checkedKeys = this.$refs.RomeRef.getCheckedKeys()
+      console.log(checkedKeys)
+      await assignPerm({
+        id: this.currentRoleId,
+        permIds: checkedKeys
+      })
+      this.$message.success('分配权限成功')
+      this.closePermission()
+    },
+    closePermission() {
+      this.showPermission = false
+      this.checkedKeys = []
+    },
+    async assignperm(id) {
+      this.currentRoleId = id
+      // console.log(id)
+      this.PermissionList = transListToTree(await getPermissionList(), '0')
+
+      // console.log(res)
+      // this.getPermissionList = res
+
+      const { permIds } = await getRoleDetail(id)
+      this.selectCheck = permIds
+      this.showPermission = true
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
     },

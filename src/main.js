@@ -14,7 +14,8 @@ import router from './router'
 
 import '@/icons' // icon
 import '@/permission' // permission control
-
+// Vue.use(ElementUI, { locale })
+import i18n from './lang'
 import Components from '@/components/index'
 // 打印
 import Print from 'vue-print-nb'
@@ -47,7 +48,9 @@ Object.keys(filters).forEach(key => {
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
-Vue.use(ElementUI)
+Vue.use(ElementUI, {
+  i18n: (key, value) => i18n.t(key, value)
+})
 
 Vue.config.productionTip = false
 
@@ -55,5 +58,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App)
 })

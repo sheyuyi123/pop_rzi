@@ -1,7 +1,6 @@
 <template>
   <div class="navbar">
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-
     <div class="app-breadcrumb">
       江苏传智播客教育科技股份有限公司
       <span class="breadBtn">体验版</span>
@@ -9,7 +8,11 @@
     <!-- <breadcrumb class="breadcrumb-container" /> -->
 
     <div class="right-menu">
+      <Lang class="right-menu-item" />
+      <ThemePicker />
+      <ScreenFull class="right-menu-item" />
       <el-dropdown class="avatar-container" trigger="click">
+
         <div class="avatar-wrapper">
           <img v-imgError="defaultre" :src=" $store.getters.avatar " class="user-avatar">
           <span class="name">{{ $store.getters.name }}</span>
@@ -34,13 +37,15 @@
 </template>
 
 <script>
+import ScreenFull from '@/components/ScreenFull/index.vue'
+import ThemePicker from '@/components/ThemePicker/index.vue'
 import { mapGetters } from 'vuex'
 import Hamburger from '@/components/Hamburger'
 import defaultre from '@/assets/common/bigUserHeader.png'
 
 export default {
   components: {
-    Hamburger
+    Hamburger, ScreenFull, ThemePicker
   },
   data() {
     return {
@@ -66,6 +71,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.right-menu-item {
+   vertical-align: middle;
+}
 .navbar {
   height: 50px;
   overflow: hidden;
